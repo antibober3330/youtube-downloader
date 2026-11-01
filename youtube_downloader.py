@@ -39,7 +39,7 @@ except Exception:  # yt-dlp може бути не встановлений (--h
     download_range_func = None
 
 APP_NAME = "YouTube Downloader"
-APP_VERSION = "1.0.0"
+APP_VERSION = "1.1.0"
 SCRIPT_DIR = Path(__file__).resolve().parent
 CONFIG_PATH = SCRIPT_DIR / "config.json"
 IS_WINDOWS = os.name == "nt"
@@ -1359,6 +1359,36 @@ class ApiServer:
 # --------------------------------------------------------------------------- #
 # Вікно Tkinter
 # --------------------------------------------------------------------------- #
+def _install_edit_shortcuts(root):
+    """Ctrl+V/C/X/A за кодом клавіші (працює в будь-якій розкладці) і меню правої кнопки для полів вводу."""
+    import tkinter as tk
+
+    def on_key(e):
+        w = e.widget
+        act = {86: "<<Paste>>", 67: "<<Copy>>", 88: "<<Cut>>"}.get(e.keycode)
+        if act and e.state & 0x4:
+            w.event_generate(act)
+            return "break"
+        if e.keycode == 65 and e.state & 0x4:
+            w.select_range(0, "end")
+            w.icursor("end")
+            return "break"
+
+    def popup(e):
+        w = e.widget
+        w.focus_set()
+        m = tk.Menu(w, tearoff=0)
+        m.add_command(label="Вставити", command=lambda: w.event_generate("<<Paste>>"))
+        m.add_command(label="Копіювати", command=lambda: w.event_generate("<<Copy>>"))
+        m.add_command(label="Вирізати", command=lambda: w.event_generate("<<Cut>>"))
+        m.tk_popup(e.x_root, e.y_root)
+
+    for cls in ("TEntry", "Entry"):
+        if sys.platform == "win32":
+            root.bind_class(cls, "<Control-KeyPress>", on_key, add="+")
+        root.bind_class(cls, "<Button-3>", popup, add="+")
+
+
 def run_gui(app, server, start_minimized=False):
     import tkinter as tk
     from tkinter import ttk, messagebox
@@ -1367,6 +1397,7 @@ def run_gui(app, server, start_minimized=False):
     mgr = app.manager
     root = tk.Tk()
     root.title(f"{APP_NAME} {APP_VERSION}")
+    _install_edit_shortcuts(root)
     root.geometry("860x700")
     ui_calls = queue.Queue()
     state = {"tray": None}
@@ -1385,7 +1416,7 @@ def run_gui(app, server, start_minimized=False):
         root.after(200, pump)
 
     # --- статус ---
-    top = ttk.LabelFrame(root, text="Сервер")
+    top = ttk.LabelFrame(root, text=f"Сервер · версія {APP_VERSION}")
     top.pack(fill="x", padx=8, pady=6)
     status_var = tk.StringVar()
     ttk.Label(top, textvariable=status_var, font=("Segoe UI", 10, "bold")).grid(row=0, column=0, columnspan=4,
@@ -1410,7 +1441,14 @@ def run_gui(app, server, start_minimized=False):
     ttk.Button(top, text="Копіювати", command=copy_token).grid(row=1, column=3, padx=2)
     ttk.Label(top, text="ID розширення:").grid(row=3, column=0, sticky="w", padx=6, pady=2)
     ext_var = tk.StringVar(value=", ".join(cfg["server"].get("allowed_extension_ids") or []))
-    ttk.Entry(top, textvariable=ext_var, width=40).grid(row=3, column=1, padx=4, pady=2)
+    ext_entry = ttk.Entry(top, textvariable=ext_var, width=40)
+    ext_entry.grid(row=3, column=1, padx=4, pady=2)
+
+    def paste_ext():
+        try:
+            ext_var.set(root.clipboard_get().strip())
+        except tk.TclError:
+            messagebox.showinfo(APP_NAME, "Буфер обміну порожній. Скопіюйте ID розширення з chrome://extensions.")
 
     def save_ext_ids():
         ids = [i.strip().lower() for i in re.split(r"[,\s;]+", ext_var.get()) if i.strip()]
@@ -1428,7 +1466,8 @@ def run_gui(app, server, start_minimized=False):
         ext_var.set(", ".join(ids))
         messagebox.showinfo(APP_NAME, "ID збережено. Перезапускати сервер не потрібно.")
 
-    ttk.Button(top, text="Зберегти ID", command=save_ext_ids).grid(row=3, column=2, columnspan=2, padx=2, pady=2)
+    ttk.Button(top, text="Вставити", command=paste_ext).grid(row=3, column=2, padx=2, pady=2)
+    ttk.Button(top, text="Зберегти ID", command=save_ext_ids).grid(row=3, column=3, padx=2, pady=2)
     warn_var = tk.StringVar()
     ttk.Label(top, textvariable=warn_var, foreground="#b45309").grid(row=2, column=0, columnspan=4,
                                                                     sticky="w", padx=6, pady=2)
