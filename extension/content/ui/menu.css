@@ -1,0 +1,146 @@
+/* Випадаюче меню завантаження */
+.ytdl-menu {
+  position: fixed;
+  z-index: 2147483647;
+  width: 340px;
+  max-height: calc(100vh - 16px);
+  overflow-y: auto;
+  box-sizing: border-box;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: #212121;
+  color: #f1f1f1;
+  font: 14px/1.4 "Roboto", "Arial", sans-serif;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.6);
+}
+
+.ytdl-menu * {
+  box-sizing: border-box;
+}
+
+.ytdl-menu-title {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.ytdl-menu-sub {
+  margin: 2px 0 10px;
+  color: #aaa;
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ytdl-group {
+  margin: 10px 0;
+}
+
+.ytdl-label {
+  margin-bottom: 4px;
+  color: #aaa;
+  font-size: 12px;
+}
+
+.ytdl-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin: 6px 0;
+}
+
+.ytdl-hidden {
+  display: none !important;
+}
+
+.ytdl-radio,
+.ytdl-check {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 4px 0;
+  cursor: pointer;
+}
+
+.ytdl-field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  color: #aaa;
+  font-size: 12px;
+}
+
+.ytdl-select,
+.ytdl-input {
+  width: 100%;
+  height: 32px;
+  padding: 0 8px;
+  border: 1px solid #484848;
+  border-radius: 6px;
+  background: #121212;
+  color: #f1f1f1;
+  font: inherit;
+}
+
+.ytdl-options {
+  margin: 10px 0;
+  padding: 6px 0;
+  border-top: 1px solid #383838;
+  border-bottom: 1px solid #383838;
+}
+
+.ytdl-options summary {
+  cursor: pointer;
+  color: #ccc;
+}
+
+.ytdl-status {
+  min-height: 18px;
+  margin: 8px 0 0;
+  font-size: 13px;
+}
+
+.ytdl-status.ytdl-error {
+  color: #ff6b6b;
+}
+
+.ytdl-status.ytdl-info {
+  color: #9ecbff;
+}
+
+.ytdl-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.ytdl-btn {
+  height: 34px;
+  padding: 0 16px;
+  border: none;
+  border-radius: 17px;
+  background: #3f3f3f;
+  color: #fff;
+  font: 500 14px "Roboto", "Arial", sans-serif;
+  cursor: pointer;
+}
+
+.ytdl-btn:hover {
+  background: #555;
+}
+
+.ytdl-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.ytdl-btn-primary {
+  background: #cc0000;
+}
+
+.ytdl-btn-primary:hover {
+  background: #a80000;
+}
