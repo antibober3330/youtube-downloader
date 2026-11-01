@@ -696,7 +696,8 @@ class DownloadManager:
         audio = p["kind"].endswith("audio")
         root = self.audio_dir if audio else self.video_dir
         is_playlist = p["kind"].startswith("playlist")
-        out_dir, entries = root, [{"url": p["url"], "title": None}]
+        out_dir, entries = root, [{"url": re.sub(r"^(https?://)music\.youtube\.com", r"\1www.youtube.com", p["url"]),
+                                   "title": None}]
 
         if is_playlist:
             title, entries = self._list_playlist(task, cookiefile)
@@ -775,6 +776,9 @@ class DownloadManager:
             url = e.get("url") or (f"https://www.youtube.com/watch?v={vid}" if vid else None)
             if url and not url.startswith("http"):
                 url = f"https://www.youtube.com/watch?v={url}"
+            if url and vid and re.fullmatch(r"[\w-]{11}", vid):
+                # music.youtube.com віддає 403 на завантаження — качаємо з www.youtube.com
+                url = f"https://www.youtube.com/watch?v={vid}"
             if url:
                 entries.append({"url": url, "title": e.get("title"), "id": vid,
                                 "duration": e.get("duration")})
