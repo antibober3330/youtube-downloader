@@ -1408,6 +1408,27 @@ def run_gui(app, server, start_minimized=False):
     btn_show = ttk.Button(top, text="Показати", command=toggle_token)
     btn_show.grid(row=1, column=2, padx=2)
     ttk.Button(top, text="Копіювати", command=copy_token).grid(row=1, column=3, padx=2)
+    ttk.Label(top, text="ID розширення:").grid(row=3, column=0, sticky="w", padx=6, pady=2)
+    ext_var = tk.StringVar(value=", ".join(cfg["server"].get("allowed_extension_ids") or []))
+    ttk.Entry(top, textvariable=ext_var, width=40).grid(row=3, column=1, padx=4, pady=2)
+
+    def save_ext_ids():
+        ids = [i.strip().lower() for i in re.split(r"[,\s;]+", ext_var.get()) if i.strip()]
+        bad = [i for i in ids if not re.fullmatch(r"[a-p]{32}", i)]
+        if bad:
+            messagebox.showerror(APP_NAME, f"Некоректний ID: {bad[0]}\n"
+                                           "ID — це 32 малі літери (a–p) з картки розширення в chrome://extensions.")
+            return
+        cfg["server"]["allowed_extension_ids"] = ids
+        try:
+            save_config(cfg)
+        except OSError as exc:
+            messagebox.showerror(APP_NAME, f"Не вдалося зберегти config.json: {exc}")
+            return
+        ext_var.set(", ".join(ids))
+        messagebox.showinfo(APP_NAME, "ID збережено. Перезапускати сервер не потрібно.")
+
+    ttk.Button(top, text="Зберегти ID", command=save_ext_ids).grid(row=3, column=2, columnspan=2, padx=2, pady=2)
     warn_var = tk.StringVar()
     ttk.Label(top, textvariable=warn_var, foreground="#b45309").grid(row=2, column=0, columnspan=4,
                                                                     sticky="w", padx=6, pady=2)
