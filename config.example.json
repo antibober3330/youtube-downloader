@@ -1,0 +1,36 @@
+{
+  "server": {
+    "host": "127.0.0.1",
+    "port": 8765,
+    "token": "",
+    "allowed_extension_ids": [],
+    "max_workers": 1,
+    "rate_limit_per_minute": 20
+  },
+  "paths": {
+    "base_dir": ".",
+    "video_dir": "завантажені відео",
+    "audio_dir": "завантажені аудіо"
+  },
+  "defaults": {
+    "video_quality": "1080",
+    "video_container": "mp4",
+    "audio_format": "mp3",
+    "audio_quality": "320",
+    "subtitles": false,
+    "metadata": true,
+    "normalize": true,
+    "trim": null
+  },
+  "cookies": {
+    "file": null,
+    "from_browser": null
+  },
+  "pause": {
+    "between_items_min": 1.0,
+    "between_items_max": 3.0,
+    "long_break_every": 25,
+    "long_break_min": 30.0,
+    "long_break_max": 60.0
+  }
+}

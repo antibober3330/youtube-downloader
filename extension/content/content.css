@@ -1,0 +1,51 @@
+/* Кнопки на сторінках YouTube. Усі класи мають префікс ytdl-. */
+.ytdl-btn-page {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  margin-left: 8px;
+  padding: 0 16px;
+  border: none;
+  border-radius: 18px;
+  background: #cc0000;
+  color: #fff;
+  font: 500 14px/36px "Roboto", "Arial", sans-serif;
+  white-space: nowrap;
+  cursor: pointer;
+  vertical-align: middle;
+}
+
+.ytdl-btn-page:hover {
+  background: #a80000;
+}
+
+.ytdl-btn-page:focus-visible {
+  outline: 2px solid #3ea6ff;
+  outline-offset: 2px;
+}
+
+/* Запасний варіант, якщо не знайдено рідного місця для кнопки */
+.ytdl-floating {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 2147483000;
+  margin: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.ytdl-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 28px;
+  transform: translateX(-50%);
+  z-index: 2147483647;
+  max-width: 420px;
+  padding: 12px 18px;
+  border-radius: 8px;
+  background: #212121;
+  color: #fff;
+  font: 14px/1.4 "Roboto", "Arial", sans-serif;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+}
