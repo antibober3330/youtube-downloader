@@ -39,7 +39,7 @@ except Exception:  # yt-dlp може бути не встановлений (--h
     download_range_func = None
 
 APP_NAME = "YouTube Downloader"
-APP_VERSION = "1.1.0"
+APP_VERSION = "1.1.1"
 SCRIPT_DIR = Path(__file__).resolve().parent
 CONFIG_PATH = SCRIPT_DIR / "config.json"
 IS_WINDOWS = os.name == "nt"
@@ -905,7 +905,7 @@ class DownloadManager:
         if p["metadata"]:
             pps.append({"key": "FFmpegThumbnailsConvertor", "format": "jpg", "when": "before_dl"})
         if audio:
-            opts["format"] = "bestaudio/best"
+            opts["format"] = "ba[ext=m4a]/bestaudio/best"
             pps.append({"key": "FFmpegExtractAudio", "preferredcodec": d["audio_format"],
                         "preferredquality": p["quality"]})
             if p["normalize"]:
@@ -928,8 +928,13 @@ class DownloadManager:
             opts["download_ranges"] = download_range_func(None, [(p["trim"]["start"], p["trim"]["end"])])
             opts["force_keyframes_at_cuts"] = False
 
-        with yt_dlp.YoutubeDL(opts) as ydl:
-            result = ydl.process_ie_result(info, download=True)
+        try:
+            with yt_dlp.YoutubeDL(opts) as ydl:
+                result = ydl.process_ie_result(info, download=True)
+        except Exception as exc:
+            if "403" not in str(exc) or isinstance(exc, Cancelled):
+                raise
+            result = self._retry_other_clients(task, opts, url, exc)
 
         final = None
         for rd in (result.get("requested_downloads") or []):
@@ -956,6 +961,28 @@ class DownloadManager:
         self._archive(vid, url, kind_name, p["quality"], "ok", str(final))
         self.hub.publish("done", {"task_id": task.id, "file": str(final), "status": "ok", "item": title})
         return "ok"
+
+    ALT_CLIENTS = ("web_safari", "tv", "mweb", "ios")
+
+    def _retry_other_clients(self, task, opts, url, first_exc):
+        """403 на потоці часто стосується лише одного клієнта YouTube: пробуємо інші, перш ніж вважати це блокуванням."""
+        last = first_exc
+        for client in self.ALT_CLIENTS:
+            if task.cancel.is_set() or self.stopping.is_set():
+                raise Cancelled()
+            self.tlog(task, "INFO", "403 — повторна спроба через клієнт YouTube: %s", client)
+            o = dict(opts)
+            o["extractor_args"] = {"youtube": {"player_client": [client]}}
+            try:
+                with yt_dlp.YoutubeDL(o) as ydl:
+                    return ydl.extract_info(url, download=True)
+            except Cancelled:
+                raise
+            except Exception as exc:
+                last = exc
+                if "403" not in str(exc):
+                    break
+        raise last
 
     # ---- прогрес ------------------------------------------------------------
     def _progress_hook(self, task, item, title):
