@@ -1099,6 +1099,20 @@ class App:
         self.limiter = RateLimiter(int(cfg["server"]["rate_limit_per_minute"]))
         self.shutdown_event = threading.Event()
         self.on_shutdown_request = None  # колбек для POST /api/shutdown
+        self._ids_mtime = None
+
+    def allowed_ids(self):
+        """allowed_extension_ids з config.json; перечитується при зміні файлу, без перезапуску."""
+        try:
+            mtime = CONFIG_PATH.stat().st_mtime
+            if mtime != self._ids_mtime:
+                data = json.loads(CONFIG_PATH.read_text(encoding="utf-8"))
+                ids = data.get("server", {}).get("allowed_extension_ids", [])
+                self.cfg["server"]["allowed_extension_ids"] = [str(i) for i in ids]
+                self._ids_mtime = mtime
+        except (OSError, ValueError):
+            pass
+        return self.cfg["server"]["allowed_extension_ids"]
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -1124,7 +1138,7 @@ class Handler(BaseHTTPRequestHandler):
 
     def _origin_allowed(self, origin):
         m = re.fullmatch(r"chrome-extension://([a-p]{32})", origin or "")
-        return bool(m and m.group(1) in self.app.cfg["server"]["allowed_extension_ids"])
+        return bool(m and m.group(1) in self.app.allowed_ids())
 
     def _send(self, code, payload=None, extra=None):
         body = b"" if payload is None else json.dumps(payload, ensure_ascii=False).encode("utf-8")
