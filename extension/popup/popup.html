@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <title>YouTube Downloader</title>
+  <link rel="stylesheet" href="popup.css">
+  <link rel="stylesheet" href="../content/ui/panel.css">
+</head>
+<body>
+  <section class="settings">
+    <h1>YouTube Downloader</h1>
+
+    <label for="token">Токен із вікна сервера</label>
+    <div class="row">
+      <input id="token" type="password" autocomplete="off" spellcheck="false" placeholder="Вставте токен">
+      <button id="toggle" type="button" title="Показати або сховати токен">👁</button>
+    </div>
+    <div class="row">
+      <button id="save" type="button" class="primary">Зберегти</button>
+      <button id="check" type="button">Перевірити з’єднання</button>
+    </div>
+    <div id="result" class="result" role="status"></div>
+
+    <button id="folder" type="button" class="wide">Відкрити папку завантажень</button>
+
+    <details>
+      <summary>ID розширення (для config.json)</summary>
+      <div class="row">
+        <code id="ext-id"></code>
+        <button id="copy-id" type="button">Копіювати</button>
+      </div>
+      <p class="hint">Вставте цей ID у <b>allowed_extension_ids</b> у config.json і перезапустіть сервер.</p>
+    </details>
+
+    <p class="hint">
+      Де взяти токен: у вікні сервера натисніть «Показати» → «Копіювати».
+      <a id="readme" href="https://github.com/antibober3330/youtube-downloader#readme" target="_blank" rel="noopener">Інструкція (README)</a>
+    </p>
+  </section>
+
+  <div id="ytdl-panel"></div>
+
+  <script src="popup.js"></script>
+  <script src="../content/ui/panel.js"></script>
+</body>
+</html>
